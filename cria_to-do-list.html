@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reconhecimento de Voz</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        #result {
+            width: 80%;
+            border: 1px solid #ccc;
+            padding: 20px;
+            margin-top: 20px;
+            text-align: center;
+            font-size: 1.2em;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 1em;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>Reconhecimento de Voz</h1>
+    <button id="startButton">Iniciar Reconhecimento de Voz</button>
+    <div id="result"></div>
+
+    <script>
+        // Verifica se o navegador suporta a API de Reconhecimento de Voz
+        window.SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+        if (window.SpeechRecognition) {
+            const recognition = new SpeechRecognition();
+            const startButton = document.getElementById('startButton');
+            const resultDiv = document.getElementById('result');
+
+            recognition.lang = 'pt-BR';
+            recognition.interimResults = false;
+            recognition.maxAlternatives = 1;
+
+            // Inicia o reconhecimento de voz quando o botão é clicado
+            startButton.addEventListener('click', () => {
+                recognition.start();
+            });
+
+            // Evento disparado quando a fala é reconhecida
+            recognition.addEventListener('result', (event) => {
+                const transcript = event.results[0][0].transcript;
+                resultDiv.textContent = transcript;
+            });
+
+            // Evento disparado quando o reconhecimento é concluído
+            recognition.addEventListener('end', () => {
+                recognition.stop();
+            });
+
+            // Evento disparado em caso de erro
+            recognition.addEventListener('error', (event) => {
+                resultDiv.textContent = 'Erro no reconhecimento de voz: ' + event.error;
+            });
+        } else {
+            // Caso o navegador não suporte a API de Reconhecimento de Voz
+            document.getElementById('result').textContent = 'Seu navegador não suporta a API de Reconhecimento de Voz.';
+        }
+    </script>
+</body>
+</html>

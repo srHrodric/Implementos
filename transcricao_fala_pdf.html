@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reconhecimento de Voz</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        #result {
+            width: 80%;
+            border: 1px solid #ccc;
+            padding: 20px;
+            margin-top: 20px;
+            text-align: center;
+            font-size: 1.2em;
+            overflow-y: auto;
+            max-height: 70vh;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 1em;
+            cursor: pointer;
+            margin: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Reconhecimento de Voz</h1>
+    <button id="startButton">Iniciar Reconhecimento de Voz</button>
+    <button id="stopButton">Parar Reconhecimento de Voz</button>
+    <button id="downloadButton">Baixar Texto como PDF</button>
+    <div id="result"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script>
+        // Verifica se o navegador suporta a API de Reconhecimento de Voz
+        window.SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+        if (window.SpeechRecognition) {
+            const recognition = new SpeechRecognition();
+            const startButton = document.getElementById('startButton');
+            const stopButton = document.getElementById('stopButton');
+            const downloadButton = document.getElementById('downloadButton');
+            const resultDiv = document.getElementById('result');
+
+            recognition.lang = 'pt-BR';
+            recognition.interimResults = false;
+            recognition.maxAlternatives = 1;
+            recognition.continuous = true; // Permitir reconhecimento contínuo
+
+            let recognizing = false;
+            let finalTranscript = ''; // Variável para armazenar o texto completo
+
+            // Inicia o reconhecimento de voz quando o botão é clicado
+            startButton.addEventListener('click', () => {
+                if (!recognizing) {
+                    recognition.start();
+                    recognizing = true;
+                    startButton.textContent = 'Reconhecimento Ativo...';
+                }
+            });
+
+            // Para o reconhecimento de voz quando o botão é clicado
+            stopButton.addEventListener('click', () => {
+                if (recognizing) {
+                    recognition.stop();
+                    recognizing = false;
+                    startButton.textContent = 'Iniciar Reconhecimento de Voz';
+                }
+            });
+
+            // Evento disparado quando a fala é reconhecida
+            recognition.addEventListener('result', (event) => {
+                const transcript = event.results[event.results.length - 1][0].transcript; // Obtemos o último resultado reconhecido
+                finalTranscript += transcript + ' '; // Adicionamos o texto reconhecido à variável finalTranscript
+                resultDiv.textContent = finalTranscript; // Atualizamos o conteúdo na tela
+            });
+
+            // Evento disparado em caso de erro
+            recognition.addEventListener('error', (event) => {
+                resultDiv.textContent += 'Erro no reconhecimento de voz: ' + event.error + '\n';
+            });
+
+            // Baixa o conteúdo como PDF quando o botão é clicado
+            downloadButton.addEventListener('click', () => {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                const textLines = doc.splitTextToSize(finalTranscript, doc.internal.pageSize.width - 20);
+                doc.text(textLines, 10, 10);
+                doc.save('reconhecimento_de_voz.pdf');
+            });
+        } else {
+            // Caso o navegador não suporte a API de Reconhecimento de Voz
+            document.getElementById('result').textContent = 'Seu navegador não suporta a API de Reconhecimento de Voz.';
+        }
+    </script>
+</body>
+</html>

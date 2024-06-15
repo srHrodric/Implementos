@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Microphone Listener</title>
+</head>
+<body>
+    <h1>Microphone Listener</h1>
+    <button id="start-btn">Start Listening</button>
+    <button id="stop-btn">Stop Listening</button>
+    <p id="status">Click "Start Listening" to begin.</p>
+    <a id="download-link" style="display: none;">Download Audio</a>
+
+    <script>
+        const startBtn = document.getElementById('start-btn');
+        const stopBtn = document.getElementById('stop-btn');
+        const status = document.getElementById('status');
+        const downloadLink = document.getElementById('download-link');
+        let mediaRecorder;
+        let audioChunks = [];
+
+        startBtn.addEventListener('click', async () => {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                mediaRecorder = new MediaRecorder(stream);
+
+                mediaRecorder.onstart = () => {
+                    status.textContent = 'Listening...';
+                    audioChunks = [];
+                };
+
+                mediaRecorder.ondataavailable = event => {
+                    audioChunks.push(event.data);
+                };
+
+                mediaRecorder.onstop = () => {
+                    const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                    const audioUrl = URL.createObjectURL(audioBlob);
+                    downloadLink.href = audioUrl;
+                    downloadLink.download = 'recording.wav';
+                    downloadLink.style.display = 'block';
+                    downloadLink.textContent = 'Download Audio';
+                    status.textContent = 'Stopped listening. Audio is ready to download.';
+                };
+
+                mediaRecorder.start();
+            } catch (err) {
+                console.error('Error accessing the microphone:', err);
+                status.textContent = 'Error accessing the microphone.';
+            }
+        });
+
+        stopBtn.addEventListener('click', () => {
+            if (mediaRecorder && mediaRecorder.state === 'recording') {
+                mediaRecorder.stop();
+            }
+        });
+    </script>
+</body>
+</html>
