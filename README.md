@@ -1,2 +1,2 @@
 # Implementos
-Repositório para implementações em sistemas desenvolvidos
+Repositório para implementações de sistemas desenvolvidos
