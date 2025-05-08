@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  </head>
+  <body>
+      <div id="log"></div>
+
+    <script type="text/javascript">
+      let div = document.getElementById('log');
+      let texto = 'Vou implementar isso na Chalote-Bot';
+      function escrever(str, el) {
+        let char = str.split('').reverse();
+        let typer = setInterval(function() {
+          if (!char.length) return clearInterval(typer);
+          let next = char.pop();
+          el.innerHTML += next;
+        }, 100);
+      }
+      escrever(texto, div);
+    </script>
+    
+  </body>
+</html>
